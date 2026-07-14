@@ -176,7 +176,7 @@ input, textarea, select { font-size: 16px; }
 
 .schedule-second {
   display: grid;
-  grid-template-columns: minmax(0, 1.28fr) minmax(0, 0.92fr);
+  grid-template-columns: minmax(0, 1.20fr) minmax(0, 1.00fr);
   gap: 8px;
 }
 
@@ -440,4 +440,11 @@ input, textarea, select { font-size: 16px; }
   .modal-card {
     padding-bottom: max(20px, env(safe-area-inset-bottom));
   }
+}
+
+
+/* v2.3: 時間欄の表示改善 */
+.schedule-second .info-box {
+  padding-left: 7px;
+  padding-right: 7px;
 }
