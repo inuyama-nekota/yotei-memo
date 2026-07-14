@@ -27,7 +27,6 @@ function updateDateWeekday() {
     dateWeekday.textContent = "";
     return;
   }
-
   const date = new Date(`${dateInput.value}T00:00:00`);
   const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
   dateWeekday.textContent = `（${weekdays[date.getDay()]}）`;
@@ -42,7 +41,6 @@ function setDefaultDateTime() {
   } else {
     now.setMinutes(roundedMinutes);
   }
-
   dateInput.value = toLocalDateValue(now);
   updateDateWeekday();
   hourSelect.value = String(now.getHours());
@@ -52,14 +50,12 @@ function setDefaultDateTime() {
 function buildTimeOptions() {
   hourSelect.innerHTML = "";
   minuteSelect.innerHTML = "";
-
   for (let hour = 0; hour < 24; hour += 1) {
     const option = document.createElement("option");
     option.value = String(hour);
     option.textContent = `${hour}`;
     hourSelect.append(option);
   }
-
   for (let minute = 0; minute < 60; minute += 5) {
     const option = document.createElement("option");
     option.value = String(minute);
@@ -91,24 +87,17 @@ function itemTimestamp(item) {
   return new Date(`${item.date}T${pad2(item.hour)}:${pad2(item.minute)}:00`).getTime();
 }
 
-function startOfToday() {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return today;
-}
-
 function dayDiffFromToday(dateValue) {
   const target = new Date(`${dateValue}T00:00:00`);
   target.setHours(0, 0, 0, 0);
-  const diffMs = target.getTime() - startOfToday().getTime();
-  return Math.floor(diffMs / 86400000);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return Math.floor((target.getTime() - today.getTime()) / 86400000);
 }
 
 function getScheduleStatus(item) {
   if (itemTimestamp(item) < Date.now()) return "status-past";
-
   const diffDays = dayDiffFromToday(item.date);
-
   if (diffDays >= 0 && diffDays <= 3) return "status-near";
   if (diffDays >= 4 && diffDays <= 7) return "status-soon";
   return "status-future";
@@ -146,17 +135,10 @@ function render() {
   listEl.innerHTML = "";
 
   items.sort((a, b) => {
-    const aStatus = getScheduleStatus(a) === "status-past";
-    const bStatus = getScheduleStatus(b) === "status-past";
-
-    if (aStatus !== bStatus) {
-      return aStatus ? 1 : -1;
-    }
-
-    if (aStatus && bStatus) {
-      return itemTimestamp(b) - itemTimestamp(a);
-    }
-
+    const aPast = getScheduleStatus(a) === "status-past";
+    const bPast = getScheduleStatus(b) === "status-past";
+    if (aPast !== bPast) return aPast ? 1 : -1;
+    if (aPast && bPast) return itemTimestamp(b) - itemTimestamp(a);
     return itemTimestamp(a) - itemTimestamp(b);
   });
   saveItems();
@@ -172,13 +154,16 @@ function render() {
 
     const top = document.createElement("div");
     top.className = "schedule-top";
+    top.append(makeInfoBox("場所", item.place));
 
-    const place = makeInfoBox("場所", item.place);
-    const date = makeInfoBox("", formatDate(item.date));
-    const time = makeInfoBox("", formatTime(item.hour, item.minute));
-    top.append(place, date, time);
+    const second = document.createElement("div");
+    second.className = "schedule-second";
+    second.append(
+      makeInfoBox("日付", formatDate(item.date)),
+      makeInfoBox("時間", formatTime(item.hour, item.minute))
+    );
 
-    const memo = makeInfoBox("メモ", item.memo, "memo");
+    const note = makeInfoBox("備考", item.memo, "note");
 
     const deleteButton = document.createElement("button");
     deleteButton.className = "delete-button";
@@ -186,7 +171,8 @@ function render() {
     deleteButton.setAttribute("aria-label", `${item.place}の予定を削除`);
     deleteButton.addEventListener("click", () => deleteItem(item.id));
 
-    main.append(top, memo);
+    top.append(second);
+    main.append(top, note);
     card.append(main, deleteButton);
     listEl.append(card);
   });
@@ -195,10 +181,7 @@ function render() {
 function deleteItem(id) {
   const target = items.find((item) => item.id === id);
   if (!target) return;
-
-  const ok = window.confirm(`「${target.place}」の予定を削除しますか？`);
-  if (!ok) return;
-
+  if (!window.confirm(`「${target.place}」の予定を削除しますか？`)) return;
   items = items.filter((item) => item.id !== id);
   saveItems();
   render();
@@ -223,16 +206,14 @@ function closeModal() {
 function showToast(message) {
   toast.textContent = message;
   toast.hidden = false;
-  window.clearTimeout(showToast.timer);
-  showToast.timer = window.setTimeout(() => {
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(() => {
     toast.hidden = true;
   }, 2200);
 }
 
 document.getElementById("openCreate").addEventListener("click", openModal);
 document.getElementById("cancelCreate").addEventListener("click", closeModal);
-dateInput.addEventListener("change", updateDateWeekday);
-dateInput.addEventListener("input", updateDateWeekday);
 
 backdrop.addEventListener("click", (event) => {
   if (event.target === backdrop) closeModal();
@@ -242,9 +223,11 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && !backdrop.hidden) closeModal();
 });
 
+dateInput.addEventListener("change", updateDateWeekday);
+dateInput.addEventListener("input", updateDateWeekday);
+
 form.addEventListener("submit", (event) => {
   event.preventDefault();
-
   if (!form.reportValidity()) return;
 
   const item = {
@@ -268,21 +251,19 @@ buildTimeOptions();
 setDefaultDateTime();
 render();
 
-window.setInterval(render, 60_000);
+setInterval(render, 60000);
 
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden) render();
 });
-
 window.addEventListener("pageshow", render);
 
 const query = new URLSearchParams(location.search);
 if (query.get("action") === "new") {
-  window.setTimeout(openModal, 150);
+  setTimeout(openModal, 150);
 }
 
 const isWebServer = location.protocol === "http:" || location.protocol === "https:";
-
 if (isWebServer && "serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./sw.js").catch((error) => {

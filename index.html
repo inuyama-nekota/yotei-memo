@@ -16,18 +16,17 @@
   <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
   <link rel="stylesheet" href="style.css">
 </head>
-<body data-app-version="2.0">
+<body data-app-version="2.2">
   <main class="app-shell">
     <header class="app-header">
       <h1>予定メモ</h1>
+      <button id="openCreate" class="primary-button" type="button">新規作成</button>
 
       <div class="header-legend" aria-label="色分けの説明">
-        <div class="legend-row"><span class="legend-chip legend-red"></span><span>赤＝3日以内</span></div>
-        <div class="legend-row"><span class="legend-chip legend-yellow"></span><span>黄＝1週間以内</span></div>
-        <div class="legend-row"><span class="legend-chip legend-blue"></span><span>青＝1週間以上先</span></div>
+        <div class="legend-row"><span class="legend-chip legend-red"></span><span>赤＝1〜3日以内</span></div>
+        <div class="legend-row"><span class="legend-chip legend-yellow"></span><span>黄＝4〜7日以内</span></div>
+        <div class="legend-row"><span class="legend-chip legend-blue"></span><span>青＝7日以上先</span></div>
       </div>
-
-      <button id="openCreate" class="primary-button" type="button">新規作成</button>
     </header>
 
     <section aria-labelledby="schedule-heading">
@@ -70,7 +69,7 @@
         </fieldset>
 
         <label class="field">
-          <span>メモ</span>
+          <span>備考</span>
           <textarea id="memo" name="memo" maxlength="120"
                     placeholder="例：定期通院"></textarea>
         </label>

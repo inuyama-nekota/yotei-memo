@@ -1,7 +1,7 @@
 #!/bin/zsh
 cd "$(dirname "$0")"
 
-PORT=8771
+PORT=8772
 
 if command -v python3 >/dev/null 2>&1; then
   PYTHON=python3

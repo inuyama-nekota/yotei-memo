@@ -1,6 +1,6 @@
 ﻿@echo off
 cd /d "%~dp0"
-set PORT=8771
+set PORT=8772
 
 where py >nul 2>&1
 if %errorlevel%==0 (
