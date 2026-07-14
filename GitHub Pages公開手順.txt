@@ -1,0 +1,15 @@
+GitHub Pages 公開手順
+
+1. GitHubで新しいリポジトリを作る
+2. このフォルダ内の全ファイルをリポジトリへ入れる
+   .github フォルダも含めてください
+3. main ブランチへ保存する
+4. リポジトリの Settings を開く
+5. 左側の Pages を開く
+6. Build and deployment の Source を GitHub Actions にする
+7. Actionsタブで公開処理が完了するまで待つ
+8. Pages欄に表示されたURLをスマホで開く
+
+注意：
+予定データは端末ごとに保存されます。
+Macで入力した予定がスマホへ自動で移るわけではありません。
