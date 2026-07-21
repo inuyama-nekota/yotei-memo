@@ -85,10 +85,21 @@ input, textarea, select { font-size: 16px; }
   padding: 0 18px;
   border: 2.5px solid var(--line);
   border-radius: 20px;
-  background: var(--white);
+  background: linear-gradient(#ffffff 0%, #f4f8e8 100%);
   font-weight: 800;
   font-size: 1.05rem;
-  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 6px 0 #879866,
+    0 9px 16px rgba(0, 0, 0, 0.22);
+  transform: translateY(0);
+  transition: transform 80ms ease, box-shadow 80ms ease;
+}
+
+.primary-button:active {
+  transform: translateY(4px);
+  box-shadow:
+    0 2px 0 #879866,
+    0 4px 8px rgba(0, 0, 0, 0.18);
 }
 
 .header-legend {
@@ -181,10 +192,10 @@ input, textarea, select { font-size: 16px; }
 }
 
 .info-box {
-  min-height: 42px;
+  min-height: 33.6px;
   display: flex;
   align-items: center;
-  padding: 6px 8px;
+  padding: 4.8px 8px;
   border: 2.5px solid #666;
   background: #ececec;
   font-size: 0.90rem;
@@ -203,10 +214,39 @@ input, textarea, select { font-size: 16px; }
   flex: 0 0 auto;
 }
 
-.delete-button {
+.schedule-title {
+  font-weight: 700;
+  margin-right: 110px;
+}
+
+.card-actions {
   position: absolute;
-  right: -16px;
-  top: -8px;
+  right: 10px;
+  top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.edit-button {
+  min-width: 58px;
+  height: 38px;
+  padding: 0 12px;
+  border: 2.5px solid #444;
+  border-radius: 999px;
+  background: #f8f8f8;
+  font-size: 0.9rem;
+  font-weight: 800;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.10);
+}
+
+.edit-button:active {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+
+.delete-button {
+  position: relative;
   width: 40px;
   height: 40px;
   border: 2.5px solid #444;

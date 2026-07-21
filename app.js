@@ -4,15 +4,19 @@ const listEl = document.getElementById("scheduleList");
 const emptyState = document.getElementById("emptyState");
 const backdrop = document.getElementById("modalBackdrop");
 const form = document.getElementById("scheduleForm");
+const modalTitle = document.getElementById("modalTitle");
+const scheduleNameInput = document.getElementById("scheduleName");
 const placeInput = document.getElementById("place");
 const dateInput = document.getElementById("date");
 const dateWeekday = document.getElementById("dateWeekday");
 const hourSelect = document.getElementById("hour");
 const minuteSelect = document.getElementById("minute");
 const memoInput = document.getElementById("memo");
+const saveScheduleButton = document.getElementById("saveSchedule");
 const toast = document.getElementById("toast");
 
 let items = loadItems();
+let editingItemId = null;
 
 function pad2(value) {
   return String(value).padStart(2, "0");
@@ -67,7 +71,11 @@ function buildTimeOptions() {
 function loadItems() {
   try {
     const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-    return Array.isArray(parsed) ? parsed : [];
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map((item) => ({
+      ...item,
+      title: typeof item.title === "string" && item.title.trim() ? item.title : "予定"
+    }));
   } catch {
     return [];
   }
@@ -152,10 +160,6 @@ function render() {
     const main = document.createElement("div");
     main.className = "schedule-main";
 
-    const top = document.createElement("div");
-    top.className = "schedule-top";
-    top.append(makeInfoBox("場所", item.place));
-
     const second = document.createElement("div");
     second.className = "schedule-second";
     second.append(
@@ -165,15 +169,31 @@ function render() {
 
     const note = makeInfoBox("備考", item.memo, "note");
 
+    main.append(
+      makeInfoBox("予定名", item.title, "schedule-title"),
+      makeInfoBox("場所", item.place),
+      second,
+      note
+    );
+
+    const actions = document.createElement("div");
+    actions.className = "card-actions";
+
+    const editButton = document.createElement("button");
+    editButton.className = "edit-button";
+    editButton.type = "button";
+    editButton.textContent = "編集";
+    editButton.setAttribute("aria-label", `${item.title}の予定を編集`);
+    editButton.addEventListener("click", () => openEditModal(item.id));
+
     const deleteButton = document.createElement("button");
     deleteButton.className = "delete-button";
     deleteButton.type = "button";
     deleteButton.setAttribute("aria-label", `${item.place}の予定を削除`);
     deleteButton.addEventListener("click", () => deleteItem(item.id));
 
-    top.append(second);
-    main.append(top, note);
-    card.append(main, deleteButton);
+    actions.append(editButton, deleteButton);
+    card.append(main, actions);
     listEl.append(card);
   });
 }
@@ -188,19 +208,44 @@ function deleteItem(id) {
   showToast("予定を削除しました");
 }
 
-function openModal() {
-  form.reset();
-  setDefaultDateTime();
+function showModal() {
   backdrop.hidden = false;
   backdrop.setAttribute("aria-hidden", "false");
   document.body.style.overflow = "hidden";
-  window.setTimeout(() => placeInput.focus(), 50);
+  window.setTimeout(() => scheduleNameInput.focus(), 50);
+}
+
+function openCreateModal() {
+  editingItemId = null;
+  form.reset();
+  modalTitle.textContent = "新しい予定を入力";
+  saveScheduleButton.textContent = "保存する";
+  setDefaultDateTime();
+  showModal();
+}
+
+function openEditModal(id) {
+  const item = items.find((entry) => entry.id === id);
+  if (!item) return;
+
+  editingItemId = id;
+  modalTitle.textContent = "予定を編集";
+  saveScheduleButton.textContent = "変更を保存";
+  scheduleNameInput.value = item.title || "予定";
+  placeInput.value = item.place || "";
+  dateInput.value = item.date || "";
+  hourSelect.value = String(item.hour);
+  minuteSelect.value = String(item.minute);
+  memoInput.value = item.memo || "";
+  updateDateWeekday();
+  showModal();
 }
 
 function closeModal() {
   backdrop.hidden = true;
   backdrop.setAttribute("aria-hidden", "true");
   document.body.style.overflow = "";
+  editingItemId = null;
 }
 
 function showToast(message) {
@@ -212,7 +257,7 @@ function showToast(message) {
   }, 2200);
 }
 
-document.getElementById("openCreate").addEventListener("click", openModal);
+document.getElementById("openCreate").addEventListener("click", openCreateModal);
 document.getElementById("cancelCreate").addEventListener("click", closeModal);
 
 backdrop.addEventListener("click", (event) => {
@@ -230,21 +275,32 @@ form.addEventListener("submit", (event) => {
   event.preventDefault();
   if (!form.reportValidity()) return;
 
-  const item = {
-    id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+  const values = {
+    title: scheduleNameInput.value.trim(),
     place: placeInput.value.trim(),
     date: dateInput.value,
     hour: Number(hourSelect.value),
     minute: Number(minuteSelect.value),
-    memo: memoInput.value.trim(),
-    createdAt: Date.now()
+    memo: memoInput.value.trim()
   };
+  const wasEditing = editingItemId !== null;
 
-  items.push(item);
+  if (wasEditing) {
+    const index = items.findIndex((item) => item.id === editingItemId);
+    if (index === -1) return;
+    items[index] = { ...items[index], ...values, updatedAt: Date.now() };
+  } else {
+    items.push({
+      id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+      ...values,
+      createdAt: Date.now()
+    });
+  }
+
   saveItems();
   render();
   closeModal();
-  showToast("予定を保存しました");
+  showToast(wasEditing ? "予定を変更しました" : "予定を保存しました");
 });
 
 buildTimeOptions();
@@ -260,7 +316,7 @@ window.addEventListener("pageshow", render);
 
 const query = new URLSearchParams(location.search);
 if (query.get("action") === "new") {
-  setTimeout(openModal, 150);
+  setTimeout(openCreateModal, 150);
 }
 
 const isWebServer = location.protocol === "http:" || location.protocol === "https:";
