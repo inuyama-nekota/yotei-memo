@@ -16,11 +16,11 @@
   <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
   <link rel="stylesheet" href="style.css">
 </head>
-<body data-app-version="2.3">
+<body data-app-version="2.4">
   <main class="app-shell">
     <header class="app-header">
       <h1>予定メモ</h1>
-      <button id="openCreate" class="primary-button" type="button">新規作成</button>
+      <button id="openCreate" class="primary-button" type="button">新規予定入力</button>
 
       <div class="header-legend" aria-label="色分けの説明">
         <div class="legend-row"><span class="legend-chip legend-red"></span><span>赤＝1〜3日以内</span></div>
@@ -40,9 +40,15 @@
 
   <div id="modalBackdrop" class="modal-backdrop" hidden aria-hidden="true">
     <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <h2 id="modalTitle">新しい予定を作成</h2>
+      <h2 id="modalTitle">新しい予定を入力</h2>
 
       <form id="scheduleForm">
+        <label class="field">
+          <span>予定名</span>
+          <input id="scheduleName" name="scheduleName" type="text" maxlength="40"
+                 autocomplete="off" placeholder="例：歯科の予約" required>
+        </label>
+
         <label class="field">
           <span>場所</span>
           <input id="place" name="place" type="text" maxlength="40"
@@ -76,7 +82,7 @@
 
         <div class="modal-actions">
           <button id="cancelCreate" class="secondary-button" type="button">やめる</button>
-          <button class="save-button" type="submit">保存する</button>
+          <button id="saveSchedule" class="save-button" type="submit">保存する</button>
         </div>
       </form>
     </section>
