@@ -16,7 +16,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
   <link rel="stylesheet" href="style.css">
 </head>
-<body data-app-version="2.4">
+<body data-app-version="2.5">
   <main class="app-shell">
     <header class="app-header">
       <h1>予定メモ</h1>
@@ -32,7 +32,7 @@
     <section aria-labelledby="schedule-heading">
       <h2 id="schedule-heading" class="sr-only">予定一覧</h2>
       <div id="emptyState" class="empty-state" hidden>
-        予定はまだありません。<br>「新規作成」から追加してください。
+        予定はまだありません。<br>「新規予定入力」から追加してください。
       </div>
       <div id="scheduleList" class="schedule-list"></div>
     </section>
@@ -63,8 +63,8 @@
           </div>
         </label>
 
-        <fieldset class="field time-field">
-          <legend>時間</legend>
+        <div class="field time-field">
+          <span class="time-label">時間</span>
           <div class="time-picker" aria-label="時間を選択">
             <select id="hour" name="hour" aria-label="時"></select>
             <span class="time-unit">時</span>
@@ -72,7 +72,7 @@
             <span class="time-unit">分〜</span>
           </div>
           <p class="field-hint">上下に動かして選べます。分は5分単位です。</p>
-        </fieldset>
+        </div>
 
         <label class="field">
           <span>備考</span>
