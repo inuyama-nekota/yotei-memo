@@ -1,4 +1,4 @@
-const CACHE_NAME = "yotei-memo-v2.5";
+const CACHE_NAME = "yotei-memo-v2.5.1";
 const APP_SHELL = [
   "./",
   "./index.html",
